@@ -36,6 +36,11 @@ class Course {
         )
             .then(content => JSON.parse(content))
     }
+
+    static async getById(id) {
+        const courses = await Course.getAll()
+        return courses.find(c => c.id === id)
+    }
 }
 
 module.exports = Course
