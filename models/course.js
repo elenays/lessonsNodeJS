@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid')
-const fs = require('fs')
+const { promises: fs } = require('fs')
 const path = require('path')
 
 class Course {
@@ -24,28 +24,17 @@ class Course {
         const courses = await Course.getAll()
         courses.push(this.toJSON())
 
-        return new Promise((resolve, reject) => {
-
-            fs.writeFile(
-                path.join(__dirname, '..', 'data', 'courses.json'),
-                JSON.stringify(courses),
-                (err) => {
-                    if (err) reject(err)
-                    else resolve()
-                })
-        })
+        return fs.writeFile(
+            path.join(__dirname, '..', 'data', 'courses.json'),
+            JSON.stringify(courses))
     }
 
     static getAll() {
-        return new Promise((resolve, reject) => {
-            fs.readFile(
-                path.join(__dirname, '..', 'data', 'courses.json'),
-                'utf-8',
-                (err, content) => {
-                    if (err) reject(err)
-                    else resolve(JSON.parse(content))
-                })
-        })
+        return fs.readFile(
+            path.join(__dirname, '../data/courses.json'),
+            'utf-8'
+        )
+            .then(content => JSON.parse(content))
     }
 }
 
