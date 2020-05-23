@@ -4,6 +4,7 @@ const homeRoutes = require('./routes/home')
 const addRoutes = require('./routes/add')
 const coursesRoutes = require('./routes/courses')
 const cartRoutes = require('./routes/cart')
+const path = require('path')
 
 const app = express()
 
@@ -17,7 +18,7 @@ app.engine('hbs', hbs.engine) //регистрируем в JS что есть �
 app.set('view engine', 'hbs') //используем
 app.set('views', 'views') //где храним шаблоны
 
-app.use(express.static('public'))
+app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.urlencoded({ extended: true }))
 // ────────────────────────────────────────────────────────────────────────────────
 app.use('/', homeRoutes)
