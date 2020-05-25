@@ -1,15 +1,15 @@
 
-//форматировние цены
-const toCurrency = price => {
-    new Intl.NumberFormat('ru-RU', {
-        currency: 'rub',
-        style: 'currency'
-    }).format(price)
-}
+// //форматировние цены
+// const toCurrency = price => {
+//     new Intl.NumberFormat('ru-RU', {
+//         currency: 'rub',
+//         style: 'currency'
+//     }).format(price)
+// }
 
-document.querySelectorAll('.price').forEach(el => {
-    el.textContent = toCurrency(el.textContent)
-})
+// document.querySelectorAll('.price').forEach(el => {
+//     el.textContent = toCurrency(el.textContent)
+// })
 
 // ────────────────────────────────────────────────────────────────────────────────
 

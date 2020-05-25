@@ -5,9 +5,26 @@ const addRoutes = require('./routes/add')
 const coursesRoutes = require('./routes/courses')
 const cartRoutes = require('./routes/cart')
 const path = require('path')
+const mongoose = require('mongoose')
+
 
 const app = express()
 
+const PORT = process.env.PORT || 3000
+
+async function start() {
+    try {
+        const url = `mongodb+srv://elena:XYTr4gortpyiJYXK@cluster0-adeo3.mongodb.net/courses`
+        await mongoose.connect(url, { useNewUrlParser: true })
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${ PORT }`)
+        })
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+start()
 // ────────────────────────────────────────────────────────────────────────────────
 const hbs = exphbs.create({
     defaultLayout: 'main', //название дефолтного файла
@@ -25,10 +42,3 @@ app.use('/', homeRoutes)
 app.use('/add', addRoutes)
 app.use('/courses', coursesRoutes)
 app.use('/cart', cartRoutes)
-// ────────────────────────────────────────────────────────────────────────────────
-const PORT = process.env.PORT || 3000
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${ PORT }`)
-})
-
