@@ -4,12 +4,12 @@ const Course = require('../models/course')
 const router = Router()
 
 router.get('/', async (req, res) => {
-    const courses = await Course.find()
+    const coursesList = await Course.find()
         .then(docs => docs.map(doc => doc.toObject({ virtuals: true }))) //mongoose возвращает не обычный object, а свой документ с кучей разных лишних вещей
-    res.render('courses', {
+    res.render('coursesList', {
         title: 'Курсы',
         isCourses: true,
-        courses
+        coursesList
     })
 })
 
@@ -18,7 +18,8 @@ router.get('/:id/edit', async (req, res) => {
         return res.redirect('/')
     }
 
-    const course = await Course.findById(req.params.id).then(doc => doc.toObject({ virtuals: true }))
+    const course = await Course.findById(req.params.id)
+        .then(doc => doc.toObject({ virtuals: true }))
 
     res.render('course-edit', {
         title: `Редактировать ${ course.title }`,
@@ -33,8 +34,18 @@ router.post('/edit/', async (req, res) => {
     res.redirect('/courses')
 })
 
+router.post('/remove', async (req, res) => {
+    try {
+        await Course.deleteOne({ _id: req.body.id })
+        res.redirect('/courses')
+    } catch (err) {
+        console.log(err)
+    }
+})
+
 router.get('/:id', async (req, res) => {
-    const course = await Course.findById(req.params.id).then(doc => doc.toObject({ virtuals: true }))
+    const course = await Course.findById(req.params.id)
+        .then(doc => doc.toObject({ virtuals: true }))
     res.render('course', {
         layout: 'empty',
         title: `Курс ${ course.title }`,
