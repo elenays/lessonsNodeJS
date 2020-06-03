@@ -6,6 +6,7 @@ const coursesRoutes = require('./routes/coursesList')
 const cartRoutes = require('./routes/cart')
 const path = require('path')
 const mongoose = require('mongoose')
+const User = require('./models/user')
 
 
 const app = express()
@@ -14,11 +15,22 @@ const PORT = process.env.PORT || 3000
 
 async function start() {
     try {
-        const url = `mongodb+srv://elena:XYTr4gortpyiJYXK@cluster0-adeo3.mongodb.net/courses`
+        const url = `mongodb://localhost:27017/cources`
         await mongoose.connect(url, {
             useNewUrlParser: true,
             useFindAndModify: false
         })
+        const candidate = await User.findOne()
+
+        if (!candidate) {
+            const user = new User({
+                email: 'elena@ya.ru',
+                name: 'Elena',
+                cart: { items: [] }
+            })
+            await user.save()
+        }
+
         app.listen(PORT, () => {
             console.log(`Server is running on port ${ PORT }`)
         })
@@ -37,6 +49,17 @@ const hbs = exphbs.create({
 app.engine('hbs', hbs.engine) //регистрируем в JS что есть такой движок
 app.set('view engine', 'hbs') //используем
 app.set('views', 'views') //где храним шаблоны
+
+app.use(async (req, res, next) => {
+    try {
+        const user = await User.findById('5ed64cf62458d1410b4b0f7a')
+        req.user = user
+        next()
+    } catch (err) {
+        console.log(err)
+    }
+
+})
 
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.urlencoded({ extended: true }))

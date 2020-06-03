@@ -5,7 +5,10 @@ const router = Router()
 
 router.get('/', async (req, res) => {
     const coursesList = await Course.find()
+        .populate('userId', 'email name')
+        .select('title price img')
         .then(docs => docs.map(doc => doc.toObject({ virtuals: true }))) //mongoose возвращает не обычный object, а свой документ с кучей разных лишних вещей
+
     res.render('coursesList', {
         title: 'Курсы',
         isCourses: true,

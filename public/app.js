@@ -24,8 +24,8 @@ if ($cart) {
                 method: 'delete'
             }).then(res => res.json())
                 .then(cart => {
-                    if (cart.courses.lenght) {
-                        const html = cart.courses.map(c => {
+                    if (cart.coursesList.length) {
+                        const html = cart.coursesList.map(c => {
                             return `
                             <tr>
                                 <td>${c.title }</td>
@@ -35,9 +35,9 @@ if ($cart) {
                                 </td>
                             </tr>
                             `
-                        }).join() //приводим массив к строке
+                        }).join(' ') //приводим массив к строке
                         $cart.querySelector('tbody').innerHTML = html
-                        $cart.querySelector('.price').textContent = toCurrency(cart.price)
+                        $cart.querySelector('.price').textContent = cart.price
                     } else {
                         $cart.innerHTML = '<p>Корзина пуста</p>'
                     }
