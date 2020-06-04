@@ -1,18 +1,4 @@
 
-// //форматировние цены
-// const toCurrency = price => {
-//     new Intl.NumberFormat('ru-RU', {
-//         currency: 'rub',
-//         style: 'currency'
-//     }).format(price)
-// }
-
-// document.querySelectorAll('.price').forEach(el => {
-//     el.textContent = toCurrency(el.textContent)
-// })
-
-// ────────────────────────────────────────────────────────────────────────────────
-
 //логика корзины
 const $cart = document.querySelector('#cart')
 if ($cart) {
@@ -45,3 +31,20 @@ if ($cart) {
         }
     })
 }
+
+// ────────────────────────────────────────────────────────────────────────────────
+//формат даты
+const toDate = date => {
+    return new Intl.DateTimeFormat('ru-RU', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    }).format(new Date(date))
+}
+
+document.querySelectorAll('.date').forEach(node => {
+    node.textContent = toDate(node.textContent)
+})

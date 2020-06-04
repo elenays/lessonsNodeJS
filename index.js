@@ -1,13 +1,15 @@
 const express = require('express')
 const exphbs = require('express-handlebars')
+const Handlebars = require('handlebars')
 const homeRoutes = require('./routes/home')
 const addRoutes = require('./routes/add')
 const coursesRoutes = require('./routes/coursesList')
 const cartRoutes = require('./routes/cart')
+const ordersRoutes = require('./routes/orders')
 const path = require('path')
 const mongoose = require('mongoose')
 const User = require('./models/user')
-
+const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access')
 
 const app = express()
 
@@ -41,12 +43,14 @@ async function start() {
 
 start()
 // ────────────────────────────────────────────────────────────────────────────────
+
 const hbs = exphbs.create({
     defaultLayout: 'main', //название дефолтного файла
-    extname: 'hbs'
+    extname: 'hbs',
+    handlebars: allowInsecurePrototypeAccess(Handlebars)
 })
 
-app.engine('hbs', hbs.engine) //регистрируем в JS что есть такой движок
+app.engine('hbs', hbs.engine)//регистрируем в JS что есть такой движок
 app.set('view engine', 'hbs') //используем
 app.set('views', 'views') //где храним шаблоны
 
@@ -68,3 +72,4 @@ app.use('/', homeRoutes)
 app.use('/add', addRoutes)
 app.use('/courses', coursesRoutes)
 app.use('/cart', cartRoutes)
+app.use('/orders', ordersRoutes)

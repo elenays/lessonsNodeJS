@@ -41,7 +41,6 @@ router.get('/', async (req, res) => {
         .execPopulate()
 
     const courses = mapCartItems(user.cart)
-    console.log('courses', courses)
 
     res.render('cart', {
         title: 'Корзина',
