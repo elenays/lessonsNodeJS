@@ -14,6 +14,7 @@ const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-ac
 const session = require('express-session')
 const varMiddleware = require('./middleware/variables')
 const MongoStore = require('connect-mongodb-session')(session) //возвращает функцию, в которую мы передали пакет, MongoStore - это класс
+const userMiddleware = require('./middleware/user')
 
 const app = express()
 
@@ -66,6 +67,7 @@ app.use(session({
 }))
 
 app.use(varMiddleware)
+app.use(userMiddleware)
 // ────────────────────────────────────────────────────────────────────────────────
 app.use('/', homeRoutes)
 app.use('/add', addRoutes)
