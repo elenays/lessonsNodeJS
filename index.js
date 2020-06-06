@@ -6,32 +6,33 @@ const addRoutes = require('./routes/add')
 const coursesRoutes = require('./routes/coursesList')
 const cartRoutes = require('./routes/cart')
 const ordersRoutes = require('./routes/orders')
+const authRoutes = require('./routes/auth')
 const path = require('path')
 const mongoose = require('mongoose')
 const User = require('./models/user')
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access')
+const session = require('express-session')
+const varMiddleware = require('./middleware/variables')
+const MongoStore = require('connect-mongodb-session')(session) //возвращает функцию, в которую мы передали пакет, MongoStore - это класс
 
 const app = express()
 
 const PORT = process.env.PORT || 3000
+const MONGO_URL = `mongodb://localhost:27017/cources`
+
+const store = new MongoStore({
+    collection: 'sessions',
+    uri: MONGO_URL
+})
 
 async function start() {
     try {
-        const url = `mongodb://localhost:27017/cources`
+        const url = MONGO_URL
         await mongoose.connect(url, {
             useNewUrlParser: true,
             useFindAndModify: false
         })
         const candidate = await User.findOne()
-
-        if (!candidate) {
-            const user = new User({
-                email: 'elena@ya.ru',
-                name: 'Elena',
-                cart: { items: [] }
-            })
-            await user.save()
-        }
 
         app.listen(PORT, () => {
             console.log(`Server is running on port ${ PORT }`)
@@ -54,22 +55,21 @@ app.engine('hbs', hbs.engine)//регистрируем в JS что есть т
 app.set('view engine', 'hbs') //используем
 app.set('views', 'views') //где храним шаблоны
 
-app.use(async (req, res, next) => {
-    try {
-        const user = await User.findById('5ed64cf62458d1410b4b0f7a')
-        req.user = user
-        next()
-    } catch (err) {
-        console.log(err)
-    }
-
-})
-
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.urlencoded({ extended: true }))
+
+app.use(session({
+    secret: 'some secret value',
+    resave: false,
+    saveUninitialized: false,
+    store
+}))
+
+app.use(varMiddleware)
 // ────────────────────────────────────────────────────────────────────────────────
 app.use('/', homeRoutes)
 app.use('/add', addRoutes)
 app.use('/courses', coursesRoutes)
 app.use('/cart', cartRoutes)
 app.use('/orders', ordersRoutes)
+app.use('/auth', authRoutes)
