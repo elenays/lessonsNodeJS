@@ -9,12 +9,14 @@ const ordersRoutes = require('./routes/orders')
 const authRoutes = require('./routes/auth')
 const path = require('path')
 const mongoose = require('mongoose')
-const User = require('./models/user')
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access')
 const session = require('express-session')
 const varMiddleware = require('./middleware/variables')
 const MongoStore = require('connect-mongodb-session')(session) //возвращает функцию, в которую мы передали пакет, MongoStore - это класс
 const userMiddleware = require('./middleware/user')
+const csurf = require('csurf')
+const flash = require('connect-flash')
+
 
 const app = express()
 
@@ -31,9 +33,9 @@ async function start() {
         const url = MONGO_URL
         await mongoose.connect(url, {
             useNewUrlParser: true,
-            useFindAndModify: false
+            useFindAndModify: false,
+            useUnifiedTopology: true
         })
-        const candidate = await User.findOne()
 
         app.listen(PORT, () => {
             console.log(`Server is running on port ${ PORT }`)
@@ -66,6 +68,8 @@ app.use(session({
     store
 }))
 
+app.use(csurf())
+app.use(flash())
 app.use(varMiddleware)
 app.use(userMiddleware)
 // ────────────────────────────────────────────────────────────────────────────────
