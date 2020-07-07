@@ -4,18 +4,26 @@ const auth = require('../middleware/auth')
 
 const router = Router()
 
-router.get('/', async (req, res) => {
-    const coursesList = await Course.find()
-        .populate('userId', 'email name')
-        .select('title price img')
-        .then(docs => docs.map(doc => doc.toObject({ virtuals: true }))) //mongoose возвращает не обычный object, а свой документ с кучей разных лишних вещей
+function isOwner(course, req) {
+    return course.userId.toString() === req.user._id.toString()
+}
 
-    res.render('coursesList', {
-        title: 'Курсы',
-        isCourses: true,
-        csrf: req.csrfToken(),
-        coursesList
-    })
+router.get('/', async (req, res) => {
+    try {
+        const coursesList = await Course.find()
+            .populate('userId', 'email name')
+            .select('title price img')
+            .then(docs => docs.map(doc => doc.toObject({ virtuals: true }))) //mongoose возвращает не обычный object, а свой документ с кучей разных лишних вещей
+
+        res.render('coursesList', {
+            title: 'Курсы',
+            isCourses: true,
+            userId: req.user ? req.user._id.toString() : null,
+            coursesList
+        })
+    } catch (err) {
+        console.log(err)
+    }
 })
 
 router.get('/:id/edit', auth, async (req, res) => {
@@ -23,25 +31,47 @@ router.get('/:id/edit', auth, async (req, res) => {
         return res.redirect('/')
     }
 
-    const course = await Course.findById(req.params.id)
-        .then(doc => doc.toObject({ virtuals: true }))
+    try {
+        const course = await Course.findById(req.params.id)
+            .then(doc => doc.toObject({ virtuals: true }))
+        if (!isOwner(course, req)) {
+            return res.redirect('/courses')
+        }
 
-    res.render('course-edit', {
-        title: `Редактировать ${ course.title }`,
-        course
-    })
+        res.render('course-edit', {
+            title: `Редактировать ${ course.title }`,
+            course
+        })
+    } catch (err) {
+        console.log(err)
+    }
 })
 
 router.post('/edit/', auth, async (req, res) => {
-    const { id } = req.body
-    delete req.body.id //удаляем, чтобы он не попал в req.body
-    await Course.findByIdAndUpdate(id, req.body) // <- сюда
-    res.redirect('/courses')
+    try {
+        const { id } = req.body
+        delete req.body.id //удаляем, чтобы он не попал в req.body
+        const course = await Course.findById(id)
+            .then(doc => doc.toObject({ virtuals: true }))
+        if (!isOwner(course, req)) {
+            return res.redirect('/courses')
+        }
+        //Object.assign(course, req.body) 
+        //await course.save() <- это вообще не работает
+        await Course.findByIdAndUpdate(id, req.body) // <- сюда
+        res.redirect('/courses')
+
+    } catch (err) {
+        console.log(err)
+    }
 })
 
 router.post('/remove', auth, async (req, res) => {
     try {
-        await Course.deleteOne({ _id: req.body.id })
+        await Course.deleteOne({
+            _id: req.body.id,
+            userId: req.user._id
+        })
         res.redirect('/courses')
     } catch (err) {
         console.log(err)
@@ -49,13 +79,17 @@ router.post('/remove', auth, async (req, res) => {
 })
 
 router.get('/:id', async (req, res) => {
-    const course = await Course.findById(req.params.id)
-        .then(doc => doc.toObject({ virtuals: true }))
-    res.render('course', {
-        layout: 'empty',
-        title: `Курс ${ course.title }`,
-        course
-    })
+    try {
+        const course = await Course.findById(req.params.id)
+            .then(doc => doc.toObject({ virtuals: true }))
+        res.render('course', {
+            layout: 'empty',
+            title: `Курс ${ course.title }`,
+            course
+        })
+    } catch (err) {
+        console.log(err)
+    }
 })
 
 module.exports = router

@@ -17,12 +17,12 @@ const userMiddleware = require('./middleware/user')
 const csurf = require('csurf')
 const flash = require('connect-flash')
 
-
 const app = express()
 
 const PORT = process.env.PORT || 3000
 const MONGO_URL = `mongodb://localhost:27017/cources`
 
+// @ts-ignore
 const store = new MongoStore({
     collection: 'sessions',
     uri: MONGO_URL
@@ -36,7 +36,7 @@ async function start() {
             useFindAndModify: false,
             useUnifiedTopology: true
         })
-
+        // @ts-ignore
         app.listen(PORT, () => {
             console.log(`Server is running on port ${ PORT }`)
         })
@@ -51,16 +51,23 @@ start()
 const hbs = exphbs.create({
     defaultLayout: 'main', //название дефолтного файла
     extname: 'hbs',
-    handlebars: allowInsecurePrototypeAccess(Handlebars)
+    handlebars: allowInsecurePrototypeAccess(Handlebars),
+    helpers: require('./utils/hbs-helpers')
 })
 
+// @ts-ignore
 app.engine('hbs', hbs.engine)//регистрируем в JS что есть такой движок
+// @ts-ignore
 app.set('view engine', 'hbs') //используем
+// @ts-ignore
 app.set('views', 'views') //где храним шаблоны
 
+// @ts-ignore
 app.use(express.static(path.join(__dirname, 'public')))
+// @ts-ignore
 app.use(express.urlencoded({ extended: true }))
 
+// @ts-ignore
 app.use(session({
     secret: 'some secret value',
     resave: false,
@@ -68,14 +75,25 @@ app.use(session({
     store
 }))
 
+
+// @ts-ignore
 app.use(csurf())
+// @ts-ignore
 app.use(flash())
+// @ts-ignore
 app.use(varMiddleware)
+// @ts-ignore
 app.use(userMiddleware)
 // ────────────────────────────────────────────────────────────────────────────────
+// @ts-ignore
 app.use('/', homeRoutes)
+// @ts-ignore
 app.use('/add', addRoutes)
+// @ts-ignore
 app.use('/courses', coursesRoutes)
+// @ts-ignore
 app.use('/cart', cartRoutes)
+// @ts-ignore
 app.use('/orders', ordersRoutes)
+// @ts-ignore
 app.use('/auth', authRoutes)

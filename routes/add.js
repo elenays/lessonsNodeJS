@@ -7,9 +7,11 @@ const router = Router()
 router.get('/', auth, (req, res) => {
     res.render('add', {
         title: 'Добавить',
-        isAdd: true
+        isAdd: true,
     })
 })
+
+
 
 router.post('/', auth, async (req, res) => {
 
