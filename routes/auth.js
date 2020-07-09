@@ -1,6 +1,6 @@
 const { Router } = require('express')
 const User = require('../models/user')
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcryptjs') // хеш-функция формирования ключа
 const { validationResult } = require('express-validator/check')
 const { registerValidators } = require('../utils/validators')
 
@@ -55,11 +55,10 @@ router.post('/login', async (req, res) => {
 router.post('/register', registerValidators, async (req, res) => {
     try {
         const { email, password, confirm, name } = req.body
-        const candidate = await User.findOne({ email })
 
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
-            req.flash('registErrror', errors.array()[0].msg)
+            req.flash('registerError', errors.array()[0].msg)
             return res.status(422).redirect('/auth/login#register')
         }
         const hashPassword = await bcrypt.hash(password, 10)
