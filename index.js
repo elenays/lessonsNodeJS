@@ -16,6 +16,7 @@ const MongoStore = require('connect-mongodb-session')(session) //возвращ�
 const userMiddleware = require('./middleware/user')
 const csurf = require('csurf')
 const flash = require('connect-flash')
+const errorHandler = require('./middleware/errors')
 
 const app = express()
 
@@ -97,3 +98,5 @@ app.use('/cart', cartRoutes)
 app.use('/orders', ordersRoutes)
 // @ts-ignore
 app.use('/auth', authRoutes)
+// @ts-ignore
+app.use(errorHandler)
