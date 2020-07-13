@@ -7,6 +7,7 @@ const coursesRoutes = require('./routes/coursesList')
 const cartRoutes = require('./routes/cart')
 const ordersRoutes = require('./routes/orders')
 const authRoutes = require('./routes/auth')
+const profileRoutes = require('./routes/profile')
 const path = require('path')
 const mongoose = require('mongoose')
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access')
@@ -17,6 +18,7 @@ const userMiddleware = require('./middleware/user')
 const csurf = require('csurf')
 const flash = require('connect-flash')
 const errorHandler = require('./middleware/errors')
+const fileMiddleware = require('./middleware/file')
 
 const app = express()
 
@@ -66,6 +68,8 @@ app.set('views', 'views') //где храним шаблоны
 // @ts-ignore
 app.use(express.static(path.join(__dirname, 'public')))
 // @ts-ignore
+app.use('/images', express.static(path.join(__dirname, 'images')))
+// @ts-ignore
 app.use(express.urlencoded({ extended: true }))
 
 // @ts-ignore
@@ -76,7 +80,8 @@ app.use(session({
     store
 }))
 
-
+// @ts-ignore
+app.use(fileMiddleware.single('avatar'))
 // @ts-ignore
 app.use(csurf())
 // @ts-ignore
@@ -85,6 +90,7 @@ app.use(flash())
 app.use(varMiddleware)
 // @ts-ignore
 app.use(userMiddleware)
+
 // ────────────────────────────────────────────────────────────────────────────────
 // @ts-ignore
 app.use('/', homeRoutes)
@@ -98,5 +104,7 @@ app.use('/cart', cartRoutes)
 app.use('/orders', ordersRoutes)
 // @ts-ignore
 app.use('/auth', authRoutes)
+// @ts-ignore
+app.use('/profile', profileRoutes)
 // @ts-ignore
 app.use(errorHandler)
