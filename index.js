@@ -19,21 +19,23 @@ const csurf = require('csurf')
 const flash = require('connect-flash')
 const errorHandler = require('./middleware/errors')
 const fileMiddleware = require('./middleware/file')
+const keys = require('./keys')
+const helmet = require('helmet')
+const compression = require('compression')
 
 const app = express()
 
 const PORT = process.env.PORT || 3000
-const MONGO_URL = `mongodb://localhost:27017/cources`
 
 // @ts-ignore
 const store = new MongoStore({
     collection: 'sessions',
-    uri: MONGO_URL
+    uri: keys.MONGO_URL
 })
 
 async function start() {
     try {
-        const url = MONGO_URL
+        const url = keys.MONGO_URL
         await mongoose.connect(url, {
             useNewUrlParser: true,
             useFindAndModify: false,
@@ -86,6 +88,10 @@ app.use(fileMiddleware.single('avatar'))
 app.use(csurf())
 // @ts-ignore
 app.use(flash())
+// @ts-ignore
+app.use(helmet())
+// @ts-ignore
+app.use(compression())
 // @ts-ignore
 app.use(varMiddleware)
 // @ts-ignore
